@@ -23,7 +23,7 @@ Bacteriums * initBacteriums(int n){
 		printf("Memoria insuficiente\n");
 		return NULL;
 	}
-	bacteriums->numbers = (int*)malloc(sizeof(n));
+	bacteriums->numbers = (long*)malloc(sizeof(long)*n);
 	if(bacteriums->numbers==NULL){
 		printf("Memoria insuficiente\n");
 		return NULL;
@@ -65,7 +65,10 @@ Bacteriums * getBacteriums(FILE * fp){
 }
 
 /*Junta bacterias adyacentes y devuelve la que corresponda. Si son iguales, devuelve -1*/
-int splitBacteriums(int a, int b){
+long splitBacteriums(long a, long b){
+	if(a > 3 || b > 3){
+		return -1;
+	}
 	if(a!=b){
 		return 6-(a+b);
 	}
@@ -76,16 +79,17 @@ int splitBacteriums(int a, int b){
 void printBacts(Bacteriums * bacts){
 	int i;
 	for(i=0;i<bacts->n;i++){
-		printf("%d-",bacts->numbers[i]);
+		printf("%ld-",bacts->numbers[i]);
 	}
 	printf(" len %d\n",bacts->n);
 }
 
 /*Recibe una estructura de bacterias y se copia en otra, pero jutando dos bacterias*/
-Bacteriums * replaceBact(Bacteriums * bacteriums, int bact, int pos){
-	Bacteriums * new = initBacteriums(bacteriums->n-1);
+Bacteriums * replaceBact(Bacteriums * bacteriums, long bact, int pos){
+	int n = bacteriums->n;
+	Bacteriums * new = initBacteriums(n-1);
 	int i;
-	for(i=0;i<bacteriums->n;i++){
+	for(i=0;i<bacteriums->n-1;i++){
 		if(i<pos){
 			new->numbers[i]=bacteriums->numbers[i];
 		}
@@ -100,17 +104,19 @@ Bacteriums * replaceBact(Bacteriums * bacteriums, int bact, int pos){
 }
 
 /*Eleva un número a otro, indicados en las entradas*/
-int expon(int number,int n){
-	int i,value=1;
+long expon(long number,int n){
+	int i;
+	long value=1;
 	for(i=1;i<=n;i++){
 		value=value*number;
 	}
 	return value;
 }
 
-/*Transforma el arreglo de enteros de bacterias a una variable int*/
-int bactsToInt(Bacteriums* bacts){
-	int i,value=0;
+/*Transforma el arreglo de enteros de bacterias a una variable long*/
+long bactsToLong(Bacteriums* bacts){
+	int i;
+	long value=0;
 	for(i=bacts->n;i>0;i--){
 		value=value+bacts->numbers[i-1]*expon(10,bacts->n-i);
 	}
@@ -119,8 +125,8 @@ int bactsToInt(Bacteriums* bacts){
 
 /*Calcula que estructura de bacterias es menor*/
 Bacteriums * getMinor(Bacteriums * bacts1, Bacteriums * bacts2){
-	int intBacts1 = bactsToInt(bacts1);
-	int intBacts2 = bactsToInt(bacts2);
+	long intBacts1 = bactsToLong(bacts1);
+	long intBacts2 = bactsToLong(bacts2);
 	if(intBacts1<intBacts2){
 		return copyBacteriums(bacts1);
 	}
@@ -131,11 +137,10 @@ Bacteriums * reduce(Bacteriums * bacteriums, Bacteriums * min){
 	int i;
 	Bacteriums * aux;
 	for(i=0;i<bacteriums->n-1;i++){
-		int bact = splitBacteriums(bacteriums->numbers[i],bacteriums->numbers[i+1]);
+		long bact = splitBacteriums(bacteriums->numbers[i],bacteriums->numbers[i+1]);
 		if(bact!=-1){
 			aux = replaceBact(bacteriums,bact,i);
 			min = getMinor(aux,min);
-
 		}
 	}
 	return min;
@@ -143,9 +148,11 @@ Bacteriums * reduce(Bacteriums * bacteriums, Bacteriums * min){
 
 /*Verifica si todas las bacterias son iguales*/
 int isReducible(Bacteriums * bacteriums){
-	int i,bact=bacteriums->numbers[0];
-	for(i=1;i<bacteriums->n;i++){
-		if(bacteriums->numbers[i]!=bact){
+	int i;
+	long bact=bacteriums->numbers[0];
+	for(i=0;i<bacteriums->n;i++){
+		long aux = bacteriums->numbers[i];
+		if(aux != bact){
 			return 1;
 		}
 	}
@@ -154,8 +161,8 @@ int isReducible(Bacteriums * bacteriums){
 
 /*Escribe el archivo de salida*/
 void writeBacts(FILE * fp, Bacteriums * bacteriums){
-	int bacts = bactsToInt(bacteriums);
-	fprintf(fp,"%d\n",bacts);
+	long bacts = bactsToLong(bacteriums);
+	fprintf(fp,"%ld\n",bacts);
 }
 
 /*Inicializa el programa*/
@@ -163,6 +170,7 @@ void init(){
 	FILE * fp = openFile("entrada.in");
 	FILE * fpOut = fopen("salida.out","w");
 	Bacteriums * bacteriums = getBacteriums(fp);
+	writeBacts(fpOut,bacteriums);
 	Bacteriums * min = copyBacteriums(bacteriums);
 	while(isReducible(min)){
 		bacteriums = copyBacteriums(min);

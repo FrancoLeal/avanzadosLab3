@@ -2,7 +2,7 @@
 #define _STRUCTS_H_
 
 typedef struct bacteriums{
-	unsigned int * numbers;
+	long * numbers;
 	int n;
 } Bacteriums;
 

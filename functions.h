@@ -16,15 +16,15 @@ Bacteriums * copyBacteriums(Bacteriums * bacteriums);
 
 Bacteriums * getBacteriums(FILE * fp);
 
-int splitBacteriums(int a, int b);
+long splitBacteriums(long a, long b);
 
 void printBacts(Bacteriums * bacts);
 
-Bacteriums * replaceBact(Bacteriums * bacteriums, int bact, int pos);
+Bacteriums * replaceBact(Bacteriums * bacteriums, long bact, int pos);
 
-int expon(int number,int n);
+long expon(long number,int n);
 
-int bactsToInt(Bacteriums* bacts);
+long bactsToLong(Bacteriums* bacts);
 
 Bacteriums * getMinor(Bacteriums * bacts1, Bacteriums * bacts2);
 
